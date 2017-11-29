@@ -1,0 +1,11 @@
++ c/
++ c/dev/
++ c/dev/backup-script/
++ c/dev/backup-script/sandbox/
++ c/dev/backup-script/sandbox/**
++ c/Users/
++ c/Users/kieranemiller/
++ c/Users/kieranemiller/Documents/
++ c/Users/kieranemiller/Documents/Fiddler2/
++ c/Users/kieranemiller/Documents/Fiddler2/**
+- *

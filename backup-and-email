@@ -1,0 +1,22 @@
+#!/bin/bash
+
+set -o errexit
+
+source ./backup > backup.log
+
+#send an email with the rsync log as an attachment and
+#the output from ./backup as the email body
+cat backup.log | email \
+	-V \
+	-s "backed up `hostname`: `date +'%F %H:%M'`" \
+	-f 'SMTP_EMAIL' \
+	-n '<NAME>' \
+	-a ${locLogFile} \
+	-tls \
+	-smtp-server smtp.gmail.com \
+	-smtp-port 587 \
+	-smtp-auth login \
+	-smtp-user <SMTP_USER> \
+	-smtp-pass <SMTP_PW> \
+	<RECIPIENT>
+

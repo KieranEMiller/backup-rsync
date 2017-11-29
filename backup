@@ -1,0 +1,65 @@
+#!/bin/bash
+
+set -o errexit
+
+source ./backup.conf
+
+currentRunTimestamp=$(date +%Y_%m_%d_%H)
+locLogFile="${locWorkingDir}/${currentRunTimestamp}_rsync.log"
+
+#normalize file paths to not contain a trailing / so that
+#subsequent path concatenation doesn't break
+locBackupDestination=${locBackupDestinationRoot%/}
+locWorkingDir=${locWorkingDir%/}
+
+echo "settings:"
+echo "include file: ${locIncludeFile}"
+echo "backup destination: ${locBackupDestinationRoot}"
+echo "working directory: ${locWorkingDir}"
+echo "log file: $locLogFile"
+echo
+
+#ensure that the root backup destination exists
+if [ ! -d "${locBackupDestinationRoot}" ]; then
+	echo "backup destination does not exist: ${locBackupDestinationRoot}...terminating"
+	exit 1
+fi
+
+#create a folder within the root backup directory to hold the 
+#current synchroninzed set of files
+locBackupDestinationCurrent=${locBackupDestinationRoot}/${currentSyncDirectoryName}
+if [ ! -d "${locBackupDestinationCurrent}" ]; then
+	echo "creating sync di+ Users/kieranemiller/Documents/rectory ${locBackupDestinationCurrent}"b
+	mkdir ${locBackupDestinationCurrent}
+fi
+
+echo "starting rsync:"
+
+#switch explanations:
+#-r \ #recursive
+#-l \ #links as symbolic
+#-t \ #preserve modify times
+#--chmod=ugo=rwX #manually set permissions to avoid permission
+#  issues when targeting root directories created by cygwin
+rsync \
+	-r \
+	-l \
+	-t \
+	--chmod=ugo=rwX \
+	--verbose \
+	--stats \
+	--log-file=${locLogFile} \
+	--include-from=${locIncludeFile} \
+	${locBaseSearchFolder} \
+	${locBackupDestinationCurrent}
+
+#copy the log file for this execution to the current destination folder
+cp -v ${locLogFile} ${locBackupDestinationCurrent}/_last_run_${currentRunTimestamp}.log
+
+#copy the log file for this execution to a history subfolder
+logArchive=${locBackupDestinationRoot}/${logFileArchiveFolderName}/
+if [ ! -d "${logArchive}" ]; then
+	mkdir ${logArchive}
+fi
+cp -v ${locLogFile} ${logArchive}
+
