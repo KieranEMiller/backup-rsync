@@ -2,10 +2,11 @@
 
 set -o errexit
 
-source ./backup.conf
+#set BINPATH to be the actual script location instead of the 
+#current directory from where the script was invoked
+readonly BINPATH="$(dirname "$0")"
 
-currentRunTimestamp=$(date +%Y_%m_%d_%H)
-locLogFile="${locWorkingDir}/${currentRunTimestamp}_rsync.log"
+source "${BINPATH}/backup.conf"
 
 #normalize file paths to not contain a trailing / so that
 #subsequent path concatenation doesn't break
@@ -57,9 +58,9 @@ rsync \
 cp -v ${locLogFile} ${locBackupDestinationCurrent}/_last_run_${currentRunTimestamp}.log
 
 #copy the log file for this execution to a history subfolder
-logArchive=${locBackupDestinationRoot}/${logFileArchiveFolderName}/
-if [ ! -d "${logArchive}" ]; then
-	mkdir ${logArchive}
+locLogArchive=${locBackupDestinationRoot}/${logFileArchiveFolderName}/
+if [ ! -d "${locLogArchive}" ]; then
+	mkdir ${locLogArchive}
 fi
-cp -v ${locLogFile} ${logArchive}
+cp -v ${locLogFile} ${locLogArchive}
 
