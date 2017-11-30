@@ -2,21 +2,34 @@
 
 set -o errexit
 
-source ./backup > backup.log
+#set BINPATH to be the actual script location instead of the 
+#current directory from where the script was invoked
+readonly BINPATH="$(dirname "$0")"
+
+#load the configuration file, needed for where to copy
+#the log file upon completion
+source "${BINPATH}/backup.conf"
+
+sh "${BINPATH}/backup" > backup.log
+#source ./backup > backup.log
 
 #send an email with the rsync log as an attachment and
 #the output from ./backup as the email body
 cat backup.log | email \
 	-V \
 	-s "backed up `hostname`: `date +'%F %H:%M'`" \
-	-f 'SMTP_EMAIL' \
-	-n '<NAME>' \
-	-a ${locLogFile} \
+	-f '<FROM_EMAIL>' \
+	-n '<FROM_NAME>' \
 	-tls \
 	-smtp-server smtp.gmail.com \
 	-smtp-port 587 \
 	-smtp-auth login \
-	-smtp-user <SMTP_USER> \
-	-smtp-pass <SMTP_PW> \
-	<RECIPIENT>
+	-smtp-user '<SMTP_USER>' \
+	-smtp-pass '<SMTP_PW>' \
+	'<RECIPIENT>'
+
+
+#copy the backup's log file to the log file archive folder
+locLogArchive=${locBackupDestinationRoot}/${logFileArchiveFolderName}/
+cp -v backup.log ${locLogArchive}/${currentRunTimestamp}_backup.log
 
