@@ -8,10 +8,8 @@ readonly BINPATH="$(dirname "$0")"
 
 source "${BINPATH}/backup.conf"
 
-#normalize file paths to not contain a trailing / so that
-#subsequent path concatenation doesn't break
-locBackupDestination=${locBackupDestinationRoot%/}
-locWorkingDir=${locWorkingDir%/}
+echo "started at ${currentRunTimestamp}"
+echo 
 
 echo "settings:"
 echo "include file: ${locIncludeFile}"
@@ -20,9 +18,15 @@ echo "working directory: ${locWorkingDir}"
 echo "log file: $locLogFile"
 echo
 
+echo "source dirs:"
+cat ${locIncludeFile}
+echo
+echo
+
 #ensure that the root backup destination exists
 if [ ! -d "${locBackupDestinationRoot}" ]; then
-	echo "backup destination does not exist: ${locBackupDestinationRoot}...terminating"
+	echo "backup destination does not exist: ${locBackupDestinationRoot}..."
+	echo "terminating..."
 	exit 1
 fi
 
@@ -30,7 +34,7 @@ fi
 #current synchroninzed set of files
 locBackupDestinationCurrent=${locBackupDestinationRoot}/${currentSyncDirectoryName}
 if [ ! -d "${locBackupDestinationCurrent}" ]; then
-	echo "creating sync di+ Users/kieranemiller/Documents/rectory ${locBackupDestinationCurrent}"b
+	echo "creating sync directory ${locBackupDestinationCurrent}"
 	mkdir ${locBackupDestinationCurrent}
 fi
 
@@ -60,6 +64,7 @@ cp -v ${locLogFile} ${locBackupDestinationCurrent}/_last_run_${currentRunTimesta
 #copy the log file for this execution to a history subfolder
 locLogArchive=${locBackupDestinationRoot}/${logFileArchiveFolderName}/
 if [ ! -d "${locLogArchive}" ]; then
+	echo "creating log directory ${locLogArchive}"
 	mkdir ${locLogArchive}
 fi
 cp -v ${locLogFile} ${locLogArchive}
