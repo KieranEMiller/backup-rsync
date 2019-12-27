@@ -9,5 +9,5 @@ a set of BASH scripts that wrap and leverage the rsync utility to backup one or 
 1. set paths in backup.conf
 1. update backup-includes.txt to target the directories you want to back up
 
-## execution
+## execution:
 does not accept any arguments, configuration is run entirely from the backup.conf file
